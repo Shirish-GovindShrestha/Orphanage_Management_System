@@ -4,12 +4,21 @@
  */
 package com.orphanage.view;
 
+import com.controller.SearchingAlgorithm.BinarySearch;
+import com.orphanage.controller.datastructure.algorithm.SelectionSort;
 import com.orphanage.model.OrphanModel;
+import com.orphanage.util.ValidationUtil;
 import static com.orphanage.util.ValidationUtil.isValidCredentials;
 import java.awt.Color;
 import java.awt.Font;
-import java.util.LinkedList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import javax.swing.JLabel;
+
 import javax.swing.JOptionPane;
+
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -18,24 +27,32 @@ import javax.swing.table.DefaultTableModel;
  */
 public class OrphanageApp extends javax.swing.JFrame {
 
-    private LinkedList<OrphanModel> orphanList = new LinkedList<>();
+    private static short id = 4;
+    private HashMap<Integer, OrphanModel> orphanList = new HashMap<>();
     private java.awt.CardLayout cardLayout;
 
     /**
      * Creates new form OrpanageApp
      */
     public OrphanageApp() {
-        OrphanModel orphan1 = new OrphanModel(1, "h", "m", 3, 4, 5, "Female", "B-");
-        orphanList.add(orphan1);
+        OrphanModel orphan1 = new OrphanModel((short) 1, "DanDan", "m", (short) 3, (short) 4, (short) 5, "Female", "B-");
+        OrphanModel orphan2 = new OrphanModel((short) 2, "Rambsqv", "m", (short) 4, (short) 4, (short) 5, "Female", "B+");
+        OrphanModel orphan3 = new OrphanModel((short) 3, "Bampo", "m", (short) 5, (short) 4, (short) 5, "Female", "B-");
+        OrphanModel orphan4 = new OrphanModel((short) 4, "Son", "m", (short) 6, (short) 4, (short) 5, "Female", "B-");
+
+        orphanList.put((int) orphan1.getOrphanID(), orphan1);
+        orphanList.put((int) orphan2.getOrphanID(), orphan2);
+        orphanList.put((int) orphan3.getOrphanID(), orphan3);
+        orphanList.put((int) orphan4.getOrphanID(), orphan4);
 
         initComponents();
         initializeLayout();
         startProgress();
         setTableHeaderFont(orphanageTb);
+        setTableHeaderListener();
         refreshTable();
 
     }
- 
 
     private void setTableHeaderFont(javax.swing.JTable table) {
         javax.swing.table.JTableHeader header = table.getTableHeader();
@@ -52,6 +69,33 @@ public class OrphanageApp extends javax.swing.JFrame {
 
     public void clearText(javax.swing.JTextField jTextField) {
         jTextField.setText("");
+    }
+
+    private void setTableHeaderListener() {
+        orphanageTb.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = orphanageTb.columnAtPoint(e.getPoint());
+                sort(column);
+
+            }
+        });
+    }
+
+    public void sort(int column) {
+        ArrayList<OrphanModel> list = new ArrayList<>(orphanList.values());
+        switch (column) {
+            case 0:
+                refreshTable(SelectionSort.sortById(list, true));
+                break;
+            case 1:
+                refreshTable(SelectionSort.sortByFirstName(list, true));
+                break;
+            case 2:
+                refreshTable(SelectionSort.sortByFirstName(list, true));
+                break;
+        }
+
     }
 
     /**
@@ -81,7 +125,6 @@ public class OrphanageApp extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         ageTf = new javax.swing.JTextField();
-        firstNameTf = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
         weightTf = new javax.swing.JTextField();
         jLabel15 = new javax.swing.JLabel();
@@ -95,6 +138,11 @@ public class OrphanageApp extends javax.swing.JFrame {
         genderCb = new javax.swing.JComboBox<>();
         deleteBtn = new javax.swing.JButton();
         updateBtn = new javax.swing.JButton();
+        firstNameTf = new javax.swing.JTextField();
+        searchBarCb = new javax.swing.JComboBox<>();
+        jLabel25 = new javax.swing.JLabel();
+        searchKeyTf = new javax.swing.JTextField();
+        searchBtn = new javax.swing.JButton();
         addPnl = new javax.swing.JPanel();
         addBtn = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
@@ -112,6 +160,13 @@ public class OrphanageApp extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         newGenderCb = new javax.swing.JComboBox<>();
         newBloodGroupCb = new javax.swing.JComboBox<>();
+        addFirstNameErrLbl = new javax.swing.JLabel();
+        addGenderErrLbl = new javax.swing.JLabel();
+        addBloodGroupErrLbl = new javax.swing.JLabel();
+        addLastNameErrLbl = new javax.swing.JLabel();
+        addAgeErrLbl = new javax.swing.JLabel();
+        addWeightErrLbl = new javax.swing.JLabel();
+        addHeightErrLbl = new javax.swing.JLabel();
         aboutUsPnl = new javax.swing.JPanel();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
@@ -139,7 +194,7 @@ public class OrphanageApp extends javax.swing.JFrame {
         jTabbedPane2.setFont(new java.awt.Font("HP Simplified Hans", 0, 18)); // NOI18N
         jTabbedPane2.setOpaque(true);
 
-        homePagePnl.setBackground(new java.awt.Color(200, 220, 230));
+        homePagePnl.setBackground(new java.awt.Color(218, 223, 234));
         homePagePnl.setLayout(null);
 
         jLabel2.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 36)); // NOI18N
@@ -223,19 +278,37 @@ public class OrphanageApp extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
         });
         orphanageTb.setToolTipText("");
         orphanageTb.setGridColor(new java.awt.Color(255, 255, 255));
+        orphanageTb.getTableHeader().setReorderingAllowed(false);
         orphanageTb.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 orphanageTbMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(orphanageTb);
+        if (orphanageTb.getColumnModel().getColumnCount() > 0) {
+            orphanageTb.getColumnModel().getColumn(0).setResizable(false);
+            orphanageTb.getColumnModel().getColumn(1).setResizable(false);
+            orphanageTb.getColumnModel().getColumn(2).setResizable(false);
+            orphanageTb.getColumnModel().getColumn(3).setResizable(false);
+            orphanageTb.getColumnModel().getColumn(4).setResizable(false);
+            orphanageTb.getColumnModel().getColumn(5).setResizable(false);
+            orphanageTb.getColumnModel().getColumn(6).setResizable(false);
+            orphanageTb.getColumnModel().getColumn(7).setResizable(false);
+        }
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
         jPanel4.setBorder(new javax.swing.border.LineBorder(new Color(0,0,0,(int)0.01), 3, true));
@@ -251,9 +324,6 @@ public class OrphanageApp extends javax.swing.JFrame {
 
         ageTf.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         ageTf.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        firstNameTf.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        firstNameTf.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel13.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         jLabel13.setText("First Name");
@@ -305,6 +375,9 @@ public class OrphanageApp extends javax.swing.JFrame {
                 updateBtnActionPerformed(evt);
             }
         });
+
+        firstNameTf.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        firstNameTf.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -392,6 +465,24 @@ public class OrphanageApp extends javax.swing.JFrame {
                 .addContainerGap(43, Short.MAX_VALUE))
         );
 
+        searchBarCb.setBackground(new Color(0,0,0,(int)0.01));
+        searchBarCb.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        searchBarCb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Id", "First Name", "Last Name", "Age", "Weight", "Height", "Gender", "Blood Group" }));
+        searchBarCb.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jLabel25.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel25.setText("Search By:");
+
+        searchKeyTf.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        searchKeyTf.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        searchBtn.setText("Search Button");
+        searchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout managePnlLayout = new javax.swing.GroupLayout(managePnl);
         managePnl.setLayout(managePnlLayout);
         managePnlLayout.setHorizontalGroup(
@@ -403,14 +494,37 @@ public class OrphanageApp extends javax.swing.JFrame {
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(managePnlLayout.createSequentialGroup()
                         .addGap(49, 49, 49)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 778, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(546, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 778, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(managePnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(managePnlLayout.createSequentialGroup()
+                                .addGap(64, 64, 64)
+                                .addGroup(managePnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(managePnlLayout.createSequentialGroup()
+                                        .addComponent(jLabel25, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(searchBarCb, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(searchKeyTf, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(managePnlLayout.createSequentialGroup()
+                                .addGap(145, 145, 145)
+                                .addComponent(searchBtn)))))
+                .addContainerGap(233, Short.MAX_VALUE))
         );
         managePnlLayout.setVerticalGroup(
             managePnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(managePnlLayout.createSequentialGroup()
-                .addGap(40, 40, 40)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 319, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(managePnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(managePnlLayout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 319, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(managePnlLayout.createSequentialGroup()
+                        .addGap(111, 111, 111)
+                        .addGroup(managePnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(searchBarCb, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel25))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(searchKeyTf, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(33, 33, 33)
+                        .addComponent(searchBtn)))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(203, Short.MAX_VALUE))
@@ -480,6 +594,20 @@ public class OrphanageApp extends javax.swing.JFrame {
         newBloodGroupCb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-" }));
         newBloodGroupCb.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
+        addFirstNameErrLbl.setText("jLabel26");
+
+        addGenderErrLbl.setText("jLabel27");
+
+        addBloodGroupErrLbl.setText("jLabel27");
+
+        addLastNameErrLbl.setText("jLabel26");
+
+        addAgeErrLbl.setText("jLabel26");
+
+        addWeightErrLbl.setText("jLabel26");
+
+        addHeightErrLbl.setText("jLabel26");
+
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
@@ -490,35 +618,49 @@ public class OrphanageApp extends javax.swing.JFrame {
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(jPanel7Layout.createSequentialGroup()
+                                        .addComponent(jLabel6)
+                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(newHeightTf, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(newGenderCb, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(addGenderErrLbl)
+                            .addComponent(newWeightTf, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(addWeightErrLbl)
+                            .addComponent(addHeightErrLbl)))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(addBloodGroupErrLbl)
+                                    .addComponent(newBloodGroupCb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel7Layout.createSequentialGroup()
                                 .addGap(3, 3, 3)
                                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jLabel6))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(newFirstNameTf, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
-                            .addComponent(newLastNameTf)
-                            .addComponent(newAgeTf, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(newWeightTf)))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jLabel10)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(newBloodGroupCb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel7Layout.createSequentialGroup()
-                                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(38, 38, 38))
-                            .addGroup(jPanel7Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(34, 34, 34)))
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(newHeightTf, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(newGenderCb, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(214, Short.MAX_VALUE))
+                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(addLastNameErrLbl)
+                                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(jPanel7Layout.createSequentialGroup()
+                                            .addGap(6, 6, 6)
+                                            .addComponent(addFirstNameErrLbl))
+                                        .addComponent(newFirstNameTf, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
+                                        .addComponent(newLastNameTf)
+                                        .addComponent(newAgeTf, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(addAgeErrLbl))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap(192, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -527,38 +669,45 @@ public class OrphanageApp extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(newFirstNameTf, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(addFirstNameErrLbl)
+                .addGap(8, 8, 8)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(newLastNameTf, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(jLabel7))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(newAgeTf, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
-                        .addComponent(jLabel6)
-                        .addGap(12, 12, 12))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(newWeightTf, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(20, 20, 20)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(addLastNameErrLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(newHeightTf, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(17, 17, 17)
+                    .addComponent(newAgeTf, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(addAgeErrLbl)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(newWeightTf, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(addWeightErrLbl)
+                .addGap(10, 10, 10)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(newHeightTf, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(addHeightErrLbl)
+                .addGap(11, 11, 11)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newGenderCb, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9))
-                .addGap(18, 18, 18)
+                .addGap(4, 4, 4)
+                .addComponent(addGenderErrLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newBloodGroupCb, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
-                .addGap(41, 41, 41))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(addBloodGroupErrLbl)
+                .addGap(19, 19, 19))
         );
 
         javax.swing.GroupLayout addPnlLayout = new javax.swing.GroupLayout(addPnl);
@@ -568,21 +717,21 @@ public class OrphanageApp extends javax.swing.JFrame {
             .addGroup(addPnlLayout.createSequentialGroup()
                 .addGroup(addPnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(addPnlLayout.createSequentialGroup()
-                        .addGap(69, 69, 69)
-                        .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(324, 324, 324)
+                        .addComponent(addBtn))
                     .addGroup(addPnlLayout.createSequentialGroup()
-                        .addGap(325, 325, 325)
-                        .addComponent(addBtn)))
-                .addContainerGap(662, Short.MAX_VALUE))
+                        .addGap(69, 69, 69)
+                        .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(684, Short.MAX_VALUE))
         );
         addPnlLayout.setVerticalGroup(
             addPnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(addPnlLayout.createSequentialGroup()
                 .addGap(42, 42, 42)
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(68, 68, 68)
+                .addGap(26, 26, 26)
                 .addComponent(addBtn)
-                .addContainerGap(243, Short.MAX_VALUE))
+                .addContainerGap(191, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Add ", addPnl);
@@ -730,7 +879,7 @@ public class OrphanageApp extends javax.swing.JFrame {
 
         loginSideImageLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/orphanage/resources/loginImage.jpg"))); // NOI18N
         loginSideImageLabel.setText("jLabel25");
-        loginPnl.add(loginSideImageLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, -10, 280, 480));
+        loginPnl.add(loginSideImageLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, -10, 290, 480));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -804,6 +953,8 @@ public class OrphanageApp extends javax.swing.JFrame {
             loadScreen("MainScreen");
             setFullScreen();
             setLocationRelativeTo(null);
+        } else {
+            JOptionPane.showMessageDialog(null, "Username or Password is incorrect", "Invalid Input", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_loginBtnActionPerformed
 
@@ -821,40 +972,151 @@ public class OrphanageApp extends javax.swing.JFrame {
     }//GEN-LAST:event_orphanageTbMouseClicked
 
     private void updateBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateBtnActionPerformed
+        try {
+            boolean isValid = true;
+            isValid &= ValidationUtil.isValidId(Short.parseShort(getTfText(newFirstNameTf)));
+            isValid &= ValidationUtil.isValidName(getTfText(newFirstNameTf));
+            isValid &= ValidationUtil.isValidName(getTfText(newLastNameTf));
+            isValid &= ValidationUtil.isValidAge(Short.parseShort(getTfText(newAgeTf)));
+            isValid &= ValidationUtil.isValidWeight(Short.parseShort(getTfText(newWeightTf)));
+            isValid &= ValidationUtil.isValidHeight(Short.parseShort(getTfText(newHeightTf)));
+            isValid &= ValidationUtil.isValidGender(newGenderCb.getSelectedItem().toString());
+            if (isValid &= ValidationUtil.isValidBloodGroup(newBloodGroupCb.getSelectedItem().toString())) {
+                addGenderErrLbl.setText("Error");
+            }
+            if (isValid) {
+                String firstName = getTfText(newFirstNameTf);
+                String lastName = getTfText(newLastNameTf);
+                short age = Short.parseShort(getTfText(newAgeTf));
+                short weight = Short.parseShort(getTfText(newWeightTf));
+                short height = Short.parseShort(getTfText(newHeightTf));
+                String gender = (String) newGenderCb.getSelectedItem();
+                String bloodGroup = (String) newBloodGroupCb.getSelectedItem();
 
+                OrphanModel newOrphan = new OrphanModel(id, firstName, lastName, age, weight, height, gender, bloodGroup);
+                orphanList.put((int) id, newOrphan);
+                JOptionPane.showMessageDialog(null, "Orphan has been updated", "update Succesful", JOptionPane.INFORMATION_MESSAGE);
+                refreshTable();
+            }
+        } catch (NumberFormatException E) {
+            JOptionPane.showMessageDialog(null, "Invalid Details", "update Unsuccesful", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_updateBtnActionPerformed
 
+    private boolean validateField(JLabel label, String msg, boolean isValidFormat) {
+        if (!isValidFormat) {
+            label.setText(msg);
+            return false;
+        } else {
+            label.setText("");
+            return true;
+        }
+    }
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
         try {
-            int id = orphanList.getLast().getOrphanID();
-            String firstName = getTfText(newFirstNameTf);
-            String lastName = getTfText(newLastNameTf);
-            int age = Integer.parseInt(getTfText(newAgeTf));
-            int weight = Integer.parseInt(getTfText(newWeightTf));
-            int height = Integer.parseInt(getTfText(newHeightTf));
-            String gender = (String) newGenderCb.getSelectedItem();
-            String bloodGroup = (String) newBloodGroupCb.getSelectedItem();
-            OrphanModel newOrphan = new OrphanModel(++id, firstName, lastName, age, weight, height, gender, bloodGroup);
-            orphanList.add(newOrphan);
-            JOptionPane.showMessageDialog(null, "Orphan has been added", "Insert Succesful", JOptionPane.INFORMATION_MESSAGE);
-            refreshTable();
-        } catch (Exception e) {
+            boolean isValid = true;
+            isValid &= validateField(addFirstNameErrLbl, "First name is invalid", ValidationUtil.isValidName(getTfText(newFirstNameTf)));
+            isValid &= validateField(addLastNameErrLbl, "Last name is invalid", ValidationUtil.isValidName(getTfText(newLastNameTf)));
+            isValid &= validateField(addAgeErrLbl, "Age is invalid", ValidationUtil.isValidAge(Short.parseShort(getTfText(newAgeTf))));
+            isValid &= validateField(addWeightErrLbl, "Weight is invalid", ValidationUtil.isValidWeight(Short.parseShort(getTfText(newWeightTf))));
+            isValid &= validateField(addHeightErrLbl, "Height is invalid", ValidationUtil.isValidHeight(Short.parseShort(getTfText(newHeightTf))));
+            isValid &= validateField(addGenderErrLbl, "Gender is invalid", ValidationUtil.isValidGender(newGenderCb.getSelectedItem().toString()));
+            isValid &= validateField(addBloodGroupErrLbl, "Blood Group is invalid", ValidationUtil.isValidBloodGroup(newBloodGroupCb.getSelectedItem().toString()));
 
+
+            if (isValid) {
+                String firstName = getTfText(newFirstNameTf);
+                String lastName = getTfText(newLastNameTf);
+                short age = Short.parseShort(getTfText(newAgeTf));
+                short weight = Short.parseShort(getTfText(newWeightTf));
+                short height = Short.parseShort(getTfText(newHeightTf));
+                String gender = newGenderCb.getSelectedItem().toString();
+                String bloodGroup = newBloodGroupCb.getSelectedItem().toString();
+                OrphanModel newOrphan = new OrphanModel(++id, firstName, lastName, age, weight, height, gender, bloodGroup);
+                orphanList.put((int) id, newOrphan);
+                JOptionPane.showMessageDialog(null, "Orphan has been added", "Insert Succesful", JOptionPane.INFORMATION_MESSAGE);
+                refreshTable();
+            }
+        } catch (NumberFormatException E) {
+            JOptionPane.showMessageDialog(null, "Invalid Details", "Insert Unsuccesful", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_addBtnActionPerformed
 
     private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
-        int idToBeDeleted = Integer.parseInt(getTfText(idTf));
-        orphanList.forEach(orphan -> {
-            if (idToBeDeleted == orphan.getOrphanID()) {
-                orphanList.remove(orphan);
-                JOptionPane.showMessageDialog(null, "Orphan has been deleted", "Delete Succesful", JOptionPane.INFORMATION_MESSAGE);
-                refreshTable();
-                return;
-            }
-        });
-        JOptionPane.showMessageDialog(null, "No Orphan Found", "Delete Unsuccesful", JOptionPane.ERROR_MESSAGE);
+
+        try {
+            int idToBeDeleted = Integer.parseInt(getTfText(idTf));
+            orphanList.remove(idToBeDeleted);
+            refreshTable();
+            JOptionPane.showMessageDialog(null, "Orphan Detail has been deleletd", "Delete Succesful", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException E) {
+            JOptionPane.showMessageDialog(null, "Invalid Details", "Delete Unsuccesful", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_deleteBtnActionPerformed
+
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+
+        String searchBy = (String) searchBarCb.getSelectedItem();
+        String target = getTfText(searchKeyTf);
+        searchByAttribute(searchBy, target);
+
+    }//GEN-LAST:event_searchBtnActionPerformed
+
+    public void searchByAttribute(String searchBy, String target) {
+        ArrayList<OrphanModel> list = new ArrayList<>(orphanList.values());
+        if (searchBy.equals("Id")) {
+            try {
+
+                refreshTable(BinarySearch.binarySearchbyId(list, 0, list.size() - 1, Integer.parseInt(target)));
+            } catch (NumberFormatException e) {
+
+            }
+        } else if (searchBy.equals("First Name")) {
+            try {
+                refreshTable(BinarySearch.binarySearchbyFirstName(list, 0, list.size() - 1, target));
+            } catch (NumberFormatException e) {
+
+            }
+
+        } else if (searchBy.equals("Last Name")) {
+            try {
+                refreshTable(BinarySearch.binarySearchbyLastName(list, 0, list.size() - 1, target));
+            } catch (NumberFormatException e) {
+                // Handle error
+            }
+        } else if (searchBy.equals("Age")) {
+            try {
+                refreshTable(BinarySearch.binarySearchbyAge(list, 0, list.size() - 1, Short.parseShort(target)));
+            } catch (NumberFormatException e) {
+                // Handle error
+            }
+        } else if (searchBy.equals("Weight")) {
+            try {
+                refreshTable(BinarySearch.binarySearchbyWeight(list, 0, list.size() - 1, Short.parseShort(target)));
+            } catch (NumberFormatException e) {
+                // Handle error
+            }
+        } else if (searchBy.equals("Height")) {
+            try {
+                refreshTable(BinarySearch.binarySearchbyHeight(list, 0, list.size() - 1, Short.parseShort(target)));
+            } catch (NumberFormatException e) {
+                // Handle error
+            }
+        } else if (searchBy.equals("Gender")) {
+            try {
+                refreshTable(BinarySearch.binarySearchbyGender(list, 0, list.size() - 1, target));
+            } catch (NumberFormatException e) {
+                // Handle error
+            }
+        } else if (searchBy.equals("Blood Group")) {
+            try {
+                refreshTable(BinarySearch.binarySearchbyBloodGroup(list, 0, list.size() - 1, target));
+            } catch (NumberFormatException e) {
+                // Handle error
+            }
+        }
+
+    }
 
     /**
      * @param args the command line arguments
@@ -950,7 +1212,7 @@ public class OrphanageApp extends javax.swing.JFrame {
         table.setRowCount(0);
 
         // Populate the table with student data
-        orphanList.forEach(orphan -> table.addRow(new Object[]{
+        this.orphanList.forEach((id, orphan) -> table.addRow(new Object[]{
             orphan.getOrphanID(),
             orphan.getFirstName(),
             orphan.getLastName(),
@@ -959,16 +1221,39 @@ public class OrphanageApp extends javax.swing.JFrame {
             orphan.getHeight(),
             orphan.getGender(),
             orphan.getBloodGroup()
-
         }));
+
     }
 
+    private void refreshTable(ArrayList<OrphanModel> list) {
+        DefaultTableModel table = (DefaultTableModel) orphanageTb.getModel();
 
+        // Clear existing rows if needed
+        table.setRowCount(0);
+
+        list.forEach(orphan -> table.addRow(new Object[]{
+            orphan.getOrphanID(),
+            orphan.getFirstName(),
+            orphan.getLastName(),
+            orphan.getAge(),
+            orphan.getWeight(),
+            orphan.getHeight(),
+            orphan.getGender(),
+            orphan.getBloodGroup()
+        }));
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel BackgroundImage;
     private javax.swing.JPanel aboutUsPnl;
+    private javax.swing.JLabel addAgeErrLbl;
+    private javax.swing.JLabel addBloodGroupErrLbl;
     private javax.swing.JButton addBtn;
+    private javax.swing.JLabel addFirstNameErrLbl;
+    private javax.swing.JLabel addGenderErrLbl;
+    private javax.swing.JLabel addHeightErrLbl;
+    private javax.swing.JLabel addLastNameErrLbl;
     private javax.swing.JPanel addPnl;
+    private javax.swing.JLabel addWeightErrLbl;
     private javax.swing.JTextField ageTf;
     private javax.swing.JComboBox<String> bloodGroupCb;
     private javax.swing.JButton deleteBtn;
@@ -994,6 +1279,7 @@ public class OrphanageApp extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1028,9 +1314,13 @@ public class OrphanageApp extends javax.swing.JFrame {
     private javax.swing.JTable orphanageTb;
     private javax.swing.JPasswordField passwordTf;
     private javax.swing.JProgressBar progressBar;
+    private javax.swing.JComboBox<String> searchBarCb;
+    private javax.swing.JButton searchBtn;
+    private javax.swing.JTextField searchKeyTf;
     private javax.swing.JButton updateBtn;
     private javax.swing.JLabel userIconLabel;
     private javax.swing.JTextField usernameTf;
     private javax.swing.JTextField weightTf;
     // End of variables declaration//GEN-END:variables
+
 }

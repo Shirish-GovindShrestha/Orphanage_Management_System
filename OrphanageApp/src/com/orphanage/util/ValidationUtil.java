@@ -6,7 +6,7 @@ public class ValidationUtil {
 
     private static final Pattern NAME_PATTERN = Pattern.compile("^[a-zA-Z]+$");  
     private static final Pattern GENDER_PATTERN = Pattern.compile("^(Male|Female|Other)$");
-    private static final Pattern BLOOD_GROUP_PATTERN = Pattern.compile("^(AB+|A+|O+|B+|AB-|A-|O-|B-)$");
+    private static final Pattern BLOOD_GROUP_PATTERN = Pattern.compile("^(AB\\+|A\\+|O\\+|B\\+|AB\\-|A\\-|O\\-|B\\-)$");
     private static final String VALID_USERNAME = "admin";
     private static final String VALID_PASSWORD = "admin";
 
@@ -37,7 +37,7 @@ public class ValidationUtil {
      * @return true if valid, otherwise false
      */
     public static boolean isValidGender(String gender) {
-        return !isNullOrEmpty(gender) && GENDER_PATTERN.matcher(gender).matches();
+        return GENDER_PATTERN.matcher(gender).matches();
     }
     
     /**
@@ -47,7 +47,17 @@ public class ValidationUtil {
      * @return true if valid, otherwise false
      */
     public static boolean isValidBloodGroup(String bloodGroup) {
-        return !isNullOrEmpty(bloodGroup) && BLOOD_GROUP_PATTERN.matcher(bloodGroup).matches();
+        return BLOOD_GROUP_PATTERN.matcher(bloodGroup).matches();
+    }
+    
+    /**
+     * Validates if the age is between 18 and 70 (inclusive).
+     *
+     * @param id the age to validate
+     * @return true if valid, otherwise false
+     */
+    public static boolean isValidId(short id){
+        return id>0;
     }
     
     /**

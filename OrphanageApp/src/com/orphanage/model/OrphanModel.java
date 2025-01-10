@@ -10,12 +10,12 @@ package com.orphanage.model;
  */
 public class OrphanModel {
     
-    private int orphanID;
+    private short orphanID;
     private String firstName;
     private String lastName;
-    private int age;
-    private int weight;
-    private int height;
+    private short age;
+    private short weight;
+    private short height;
     private String gender;
     private String bloodGroup;
     
@@ -24,7 +24,7 @@ public class OrphanModel {
     public OrphanModel() {
     }
 
-    public OrphanModel(int orphanID, String firstName, String lastName, int age, int weight, int height, String gender, String bloodGroup) {
+    public OrphanModel(short orphanID, String firstName, String lastName, short age, short weight, short height, String gender, String bloodGroup) {
         this.orphanID = orphanID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -35,11 +35,12 @@ public class OrphanModel {
         this.bloodGroup = bloodGroup;
     }
 
-    public int getOrphanID() {
+    
+    public short getOrphanID() {
         return orphanID;
     }
 
-    public void setOrphanID(int orphanID) {
+    public void setOrphanID(short orphanID) {
         this.orphanID = orphanID;
     }
 
@@ -59,27 +60,27 @@ public class OrphanModel {
         this.lastName = lastName;
     }
 
-    public int getAge() {
+    public short getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(short age) {
         this.age = age;
     }
 
-    public int getWeight() {
+    public short getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(short weight) {
         this.weight = weight;
     }
 
-    public int getHeight() {
+    public short getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(short height) {
         this.height = height;
     }
 
@@ -99,7 +100,9 @@ public class OrphanModel {
         this.bloodGroup = bloodGroup;
     }
     
-
+    
 }
+
+
 
     
