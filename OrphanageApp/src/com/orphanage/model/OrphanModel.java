@@ -1,12 +1,17 @@
-/*
+    /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.orphanage.model;
 
 /**
- *
- * @author victus
+ * @author Shirish Govind Shrestha 
+ * LMU ID:23057125
+ * 
+ * A class that stores data related to an orphan, including their ID, name, age, 
+ * weight, height, gender, and blood group.
+ * 
+ * It provides methods to get and set these details.
  */
 public class OrphanModel {
     
@@ -18,12 +23,20 @@ public class OrphanModel {
     private short height;
     private String gender;
     private String bloodGroup;
-    
+   
 
-
-    public OrphanModel() {
-    }
-
+    /**
+     *Constructor method with parameter 
+     * 
+     * @param orphanID
+     * @param firstName
+     * @param lastName
+     * @param age
+     * @param weight
+     * @param height
+     * @param gender
+     * @param bloodGroup
+     */
     public OrphanModel(short orphanID, String firstName, String lastName, short age, short weight, short height, String gender, String bloodGroup) {
         this.orphanID = orphanID;
         this.firstName = firstName;
@@ -35,7 +48,7 @@ public class OrphanModel {
         this.bloodGroup = bloodGroup;
     }
 
-    
+    //Getter and Setter methods 
     public short getOrphanID() {
         return orphanID;
     }
